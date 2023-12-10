@@ -2,7 +2,6 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -80,5 +79,9 @@ public class OpenSea1DScraper implements Scraper {
         }
 
         return sex;
+    }
+    public static void main(String[] args) {
+        OpenSea1DScraper os = new OpenSea1DScraper();
+        System.out.println(os.scrape());
     }
 } 

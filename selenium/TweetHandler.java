@@ -1,6 +1,5 @@
 import org.json.JSONObject;
 import org.jsoup.nodes.Element;
-
 import java.util.List;
 import java.util.ListIterator;
 

@@ -4,56 +4,48 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.*;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class TwitterScraper implements Scraper {
     public Map<String, JSONObject> scrape() {
         Map<String, JSONObject> sex = new LinkedHashMap<>();
         int id = 1;
         try {
-            FirefoxOptions options = new FirefoxOptions();
-//            options.addArguments("--headless");
+            ChromeOptions option = new ChromeOptions();
+            System.setProperty("webdriver.chrome.driver"
+                    ,"D:\\selenium-testng-java\\browserDrivers\\chromedriver.exe");
 
-            System.setProperty("webdriver.gecko.driver", "geckodriver.exe");
-
-            WebDriver driver = new FirefoxDriver(options);
-
-            driver.get("https://twitter.com/login");
-            driver.getTitle();
-
-            Thread.sleep(5000);
+            WebDriver driver = new ChromeDriver(option);
+            driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+            driver.get("https://twitter.com/i/flow/login");
 
             WebElement usernameInput = driver.findElement(  // Tìm đến phần tử có thẻ input và có 2 thuộc tính autocomplete và name
-                    By.cssSelector("input[autocomplete='username'][name='text']"));
-            usernameInput.sendKeys("nguyenvanphuanak30@gmail.com"); //Set cho phần tử đó có giá trị là tài khoản đăng nhập
-            usernameInput.sendKeys(Keys.ENTER);     //Ấn Enter để chuyển trang tùy vào trang có thể là ấn Enter có thể là button ấn nhưng 90% là enter
-            Thread.sleep(5000);
+                     By.cssSelector("input[autocomplete='username'][name='text']"));
+            usernameInput.sendKeys("tranhuonggiang6122003@gmail.com"); //Set cho phần tử đó có giá trị là tài khoản đăng nhập
+            usernameInput.sendKeys(Keys.ENTER);//Ấn Enter để chuyển trang tùy vào trang có thể là ấn Enter có thể là button ấn nhưng 90% là enter
 
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10)); // Đợi 10s load web trong trường hợp web có js ẩn div hoặc các element khác
+            WebElement verify = driver.findElement(By.xpath("//input[@data-testid='ocfEnterTextTextInput']"));
+                  verify.sendKeys("RangRang0612");
+                   verify.sendKeys(Keys.ENTER);
 
-            WebElement phone = wait.until(ExpectedConditions.presenceOfElementLocated( // Tìm phần tử có password như trên sau đó gửi mật khẩu của mình vào
-                    By.cssSelector("input[autocomplete='on'][name='text']")));
-            phone.sendKeys("0974769722");
-            phone.sendKeys(Keys.ENTER);
-            Thread.sleep(5000); // Đợi 5s để đăng nhập
+            driver.findElement(By.xpath("//input[@name='password']")).sendKeys("giang6122003");
+            driver.findElement(By.xpath("//div[@data-testid='LoginForm_Login_Button']")).click();
 
-            WebElement password = wait.until(ExpectedConditions.presenceOfElementLocated( // Tìm phần tử có password như trên sau đó gửi mật khẩu của mình vào
-                    By.cssSelector("input[autocomplete='current-password'][name='password']")));
-            password.sendKeys("chipsaorua123");
-            password.sendKeys(Keys.ENTER);
-            Thread.sleep(5000); // Đợi 5s để đăng nhập
+            driver.findElement(By.xpath("//a[@data-testid='AppTabBar_Explore_Link']")).click();
+            WebElement search = driver.findElement(By.xpath("//input[@data-testid='SearchBox_Search_Input']"));
+            search.sendKeys("NFTs");
+            search.sendKeys(Keys.ENTER);
 
-            driver.navigate().to("https://twitter.com/search?q=%23nft&src=typed_query&f=top"); //Navigate hay chuyển hướng đến trang web cần sau khi đăng nhập do đã có cookie lên có thể lấy được dễ dàng
 
-            Thread.sleep(5000); //Đợi 5s để navigate ổn định
-
+            WebDriverWait wait = new WebDriverWait(driver, 10);
+            wait.until(ExpectedConditions.presenceOfElementLocated(
+                    By.xpath("//div[@data-testid='cellInnerDiv']//article[@data-testid='tweet']")));
             JavascriptExecutor jsExecutor = (JavascriptExecutor) driver;
             long pageHeight = (long) jsExecutor.executeScript("return Math.max( document.body.scrollHeight"
                     + ", document.body.offsetHeight, document.documentElement.clientHeight,"
@@ -79,5 +71,10 @@ public class TwitterScraper implements Scraper {
             ex.printStackTrace();
         }
         return sex;
+    }
+
+    public static void main(String[] args) {
+        TwitterScraper ts = new TwitterScraper();
+        System.out.println(ts.scrape());
     }
 }
